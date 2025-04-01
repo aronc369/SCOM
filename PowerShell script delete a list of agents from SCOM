@@ -1,0 +1,27 @@
+# Define the path to the text file containing the agent list
+$AgentListFile = "C:\Path\To\AgentList.txt"
+
+# Import the list of agent names or FQDNs
+$AgentNames = Get-Content -Path $AgentListFile
+
+# Import the SCOM module
+Import-Module OperationsManager
+
+# Connect to the SCOM Management Server
+New-SCOMManagementGroupConnection -ComputerName "YourSCOMManagementServer"
+
+# Loop through the agent names and delete each one
+foreach ($AgentName in $AgentNames) {
+    # Get the agent object
+    $Agent = Get-SCOMAgent | Where-Object { $_.DisplayName -eq $AgentName }
+
+    if ($Agent) {
+        # Uninstall the agent
+        Remove-SCOMAgent -Agent $Agent -Confirm:$false
+        Write-Host "Deleted agent: $AgentName"
+    } else {
+        Write-Host "Agent not found: $AgentName"
+    }
+}
+
+Write-Host "Script execution completed."
